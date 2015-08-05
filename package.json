@@ -17,7 +17,6 @@
   },
   "devDependencies": {
     "mocha": "^2.2.5",
-    "nodemon": "^1.4.0",
-    "zombie": "^4.0.13"
+    "nodemon": "^1.4.0"
   }
 }
