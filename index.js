@@ -1,6 +1,10 @@
 var express = require('express');
 var app = express();
 var nunjucks = require('nunjucks');
+var redis = require('redis').createClient();
+var colors = require('colors');
+
+var USERS_KEY = 'confusion-barometer:users';
 
 app.set('port', process.env.PORT || 3000);
 
@@ -20,5 +24,15 @@ var server = app.listen(app.get('port'), function() {
 var io = require('socket.io')(server);
 
 io.on('connection', function(socket) {
+  // redis.del(USERS_KEY);
+  console.log(colors.yellow('connection with socket id %s'), socket.id);
+  redis.sadd(USERS_KEY, socket.id);
+
   socket.emit('foo');
+  
+  socket.on('disconnect', function() {
+    console.log(colors.yellow('disconnection socket id %s'), socket.id);
+    redis.srem(USERS_KEY, socket.id);
+  });
+
 });
