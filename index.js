@@ -24,7 +24,6 @@ var server = app.listen(app.get('port'), function() {
 var io = require('socket.io')(server);
 
 io.on('connection', function(socket) {
-  // redis.del(USERS_KEY);
   console.log(colors.yellow('connection with socket id %s'), socket.id);
   redis.sadd(USERS_KEY, socket.id);
 
