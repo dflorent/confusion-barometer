@@ -2,15 +2,9 @@ var express = require('express');
 var app = express();
 var url = require('url');
 var nunjucks = require('nunjucks');
-var redis = require('redis').createClient();
+// var redis = require('redis').createClient();
 var colors = require('colors');
 var events = require('events').EventEmitter;
-
-if (app.get('env') === 'production') {
-    var redisURL = url.parse(process.env.REDIS_URL);
-    var redis = require('redis').createClient(redisURL.port, redisURL.hostname);
-    redis.auth(redisURL.auth.split(":")[1]);
-}
 
 // var USERS_KEY = 'confusion-barometer:users';
 
