@@ -5,7 +5,7 @@ Start working
 -------------
 
 ```
-server-redis
+# server-redis
 npm start
 ```
 

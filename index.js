@@ -1,31 +1,50 @@
+var path = require('path');
+var fs = require('fs');
 var express = require('express');
+var router = express.Router();
+var dashboard = express.Router();
 var app = express();
 var url = require('url');
 var nunjucks = require('nunjucks');
-// var redis = require('redis').createClient();
 var colors = require('colors');
 var events = require('events').EventEmitter;
+var passport = require('passport');
+var BasicStrategy = require('passport-http').BasicStrategy;
 
-// var USERS_KEY = 'confusion-barometer:users';
-
-app.set('port', process.env.PORT || 3000);
+var activate = false;
+var students = [];
 
 nunjucks.configure('views', {
   autoescape: true,
   express: app
 });
 
-app.get('/', function(req, res) {
-  res.render('index.html');
+readCredentials(function(username, password) {
+  passport.use(new BasicStrategy(function(u, p, done) {
+    return done(null, u === username && p === password ? true : false);
+  }));
 });
 
-app.get('/admin', function(req, res) {
-  res.end('<a href="/admin/init-barometer">Init barometer</a>');
+app.set('port', process.env.PORT || 3000);
+app.use(express.static('public'));
+app.use(passport.initialize());
+app.use('/', router);
+app.use('/dashboard', dashboard);
+
+router.get('/', function(req, res) {
+  res.render('index.html', {
+    activate: activate,
+    connected: students.length
+  });
 });
 
-app.get('/admin/init-barometer', function(req, res) {
-  server.emit('init-barometer');
-  res.redirect('/admin');
+dashboard.get('/', passport.authenticate('basic', { session: false }), function(req, res) {
+  res.end('<a href="/dashboard/activate">Activer</a>');
+});
+
+dashboard.get('/activate', passport.authenticate('basic', { session: false }), function(req, res) {
+  server.emit('activate');
+  res.redirect('/dashboard');
 });
 
 var server = app.listen(app.get('port'), function() {
@@ -35,18 +54,25 @@ var server = app.listen(app.get('port'), function() {
 var io = require('socket.io')(server);
 
 io.on('connection', function(socket) {
-  console.log(colors.yellow('connection with socket id %s'), socket.id);
-  // redis.sadd(USERS_KEY, socket.id);
-
-  socket.emit('foo');
+  students.push(socket.id);
+  io.sockets.emit('add student', students);
   
   socket.on('disconnect', function() {
-    console.log(colors.yellow('disconnection socket id %s'), socket.id);
-    // redis.srem(USERS_KEY, socket.id);
+    students.splice(socket.id, 1);
+    io.sockets.emit('remove student', students);
   });
 
 });
 
-server.on('init-barometer', function() {
-  console.log('init-barometer');
+server.on('activate', function() {
+  activate = true;
+  io.sockets.emit('activate');
 });
+
+function readCredentials(cb) {
+  fs.readFile(path.join(__dirname, 'credentials.json'), function(err, json) {
+    if (err) console.log(colors.red('error credentials'));
+    var creds = JSON.parse(json || '{}');
+    cb(creds.username, creds.password);
+  });
+}

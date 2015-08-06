@@ -6,13 +6,26 @@
   </head>
   <body>
     <p>confusion-barometer</p>
+    <p>en ligne : <span id="connected">{{ connected }}</span></p>
+    <p id="foo">{% if not activate %}non actif{% else %}actif{% endif %}</p>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
       var socket = io.connect();
 
-      socket.on('foo', function() {
-        console.log('foo');
+      socket.on('activate', function() {
+        console.log('activate');
+        window.document.getElementById('foo').innerHTML = 'actif';
+      });
+
+      socket.on('add student', function(data) {
+        console.log('add student');
+        window.document.getElementById('connected').innerHTML = data.length;
+      });
+
+      socket.on('remove student', function(data) {
+        console.log('remove student');
+        window.document.getElementById('connected').innerHTML = data.length;
       });
     </script>
   </body>
