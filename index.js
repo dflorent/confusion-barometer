@@ -3,6 +3,7 @@ var app = express();
 var nunjucks = require('nunjucks');
 var redis = require('redis').createClient();
 var colors = require('colors');
+var events = require('events').EventEmitter;
 
 var USERS_KEY = 'confusion-barometer:users';
 
@@ -15,6 +16,15 @@ nunjucks.configure('views', {
 
 app.get('/', function(req, res) {
   res.render('index.html');
+});
+
+app.get('/admin', function(req, res) {
+  res.end('<a href="/admin/init-barometer">Init barometer</a>');
+});
+
+app.get('/admin/init-barometer', function(req, res) {
+  server.emit('init-barometer');
+  res.redirect('/admin');
 });
 
 var server = app.listen(app.get('port'), function() {
@@ -34,4 +44,8 @@ io.on('connection', function(socket) {
     redis.srem(USERS_KEY, socket.id);
   });
 
+});
+
+server.on('init-barometer', function() {
+  console.log('init-barometer');
 });
