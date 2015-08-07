@@ -5,8 +5,16 @@ Start working
 -------------
 
 ```
-# server-redis
 npm start
+```
+
+Credentials
+-----------
+
+```
+# .env
+USERNAME=foo
+PASSWORD=bar
 ```
 
 Share the local server

@@ -1,10 +1,7 @@
-var path = require('path');
-var fs = require('fs');
 var express = require('express');
 var router = express.Router();
 var dashboard = express.Router();
 var app = express();
-var url = require('url');
 var nunjucks = require('nunjucks');
 var colors = require('colors');
 var events = require('events').EventEmitter;
@@ -19,11 +16,9 @@ nunjucks.configure('views', {
   express: app
 });
 
-readCredentials(function(username, password) {
-  passport.use(new BasicStrategy(function(u, p, done) {
-    return done(null, u === username && p === password ? true : false);
-  }));
-});
+passport.use(new BasicStrategy(function(u, p, done) {
+  return done(null, u === process.env.USERNAME && p === process.env.PASSWORD ? true : false);
+}));
 
 app.set('port', process.env.PORT || 3000);
 app.use(express.static('public'));
