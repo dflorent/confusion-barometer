@@ -21,6 +21,6 @@ Share the local server
 ----------------------
 
 ```
-npm install -g localtunnel
-lt --port 3000
+npm start
+npm run serve
 ```
