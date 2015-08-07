@@ -9,7 +9,6 @@ var passport = require('passport');
 var BasicStrategy = require('passport-http').BasicStrategy;
 
 var activate = false;
-var students = [];
 
 nunjucks.configure('views', {
   autoescape: true,
@@ -29,17 +28,31 @@ app.use('/dashboard', dashboard);
 router.get('/', function(req, res) {
   res.render('index.html', {
     activate: activate,
-    connected: students.length
   });
 });
 
+router.get('/barometer', function(req, res) {
+  if (! activate) res.redirect('/');
+  res.render('barometer.html');
+});
+
 dashboard.get('/', passport.authenticate('basic', { session: false }), function(req, res) {
-  res.end('<a href="/dashboard/activate">Activer</a>');
+  res.render('dashboard.html');
 });
 
 dashboard.get('/activate', passport.authenticate('basic', { session: false }), function(req, res) {
   server.emit('activate');
   res.redirect('/dashboard');
+});
+
+dashboard.get('/deactivate', passport.authenticate('basic', { session: false }), function(req, res) {
+  server.emit('deactivate');
+  res.redirect('/dashboard');
+});
+
+dashboard.get('/exit', passport.authenticate('basic', { session: false }), function(req, res) {
+  server.emit('deactivate');
+  res.redirect('/');
 });
 
 var server = app.listen(app.get('port'), function() {
@@ -49,25 +62,20 @@ var server = app.listen(app.get('port'), function() {
 var io = require('socket.io')(server);
 
 io.on('connection', function(socket) {
-  students.push(socket.id);
-  io.sockets.emit('add student', students);
-  
-  socket.on('disconnect', function() {
-    students.splice(socket.id, 1);
-    io.sockets.emit('remove student', students);
-  });
-
+  socket.on('disconnect', function() {});
 });
 
 server.on('activate', function() {
-  activate = true;
-  io.sockets.emit('activate');
+  if (! activate) {
+    activate = true;
+    io.sockets.emit('activate');
+  }
 });
 
-function readCredentials(cb) {
-  fs.readFile(path.join(__dirname, 'credentials.json'), function(err, json) {
-    if (err) console.log(colors.red('error credentials'));
-    var creds = JSON.parse(json || '{}');
-    cb(creds.username, creds.password);
-  });
-}
+server.on('deactivate', function() {
+  if (activate) {
+    activate = false;
+    io.sockets.emit('deactivate');
+  }
+});
+

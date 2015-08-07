@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block nav %}
+  <nav>
+    <ul class="nav nav-pills pull-right">
+      <li class="active"><a href="/dashboard/exit">Quitter</a></li>
+    </ul>
+  </nav>
+{% endblock %}
+
+{% block content %}
+  <div class="actions">
+    <a href="/dashboard/activate" class="btn btn-primary">Activer</a>
+    <a href="/dashboard/deactivate" class="btn btn-link">Désactiver</a>
+  </div>
+{% endblock %}

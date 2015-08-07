@@ -1,0 +1,31 @@
+@import url(http://fonts.googleapis.com/css?family=Droid+Sans);
+
+body {
+  font-family: 'Droid sans', sans-serif;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.wrapper {
+  padding-right: 15px;
+  padding-left: 15px;
+  max-width: 730px;
+}
+
+.header {
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.header h3 {
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: 40px;
+}
+
+.actions,
+.badges {
+  margin-bottom: 30px;
+}
+
