@@ -9,6 +9,7 @@ var passport = require('passport');
 var BasicStrategy = require('passport-http').BasicStrategy;
 
 var activate = false;
+var counter = 0;
 
 nunjucks.configure('views', {
   autoescape: true,
@@ -32,12 +33,15 @@ router.get('/', function(req, res) {
 });
 
 router.get('/barometer', function(req, res) {
-  if (! activate) res.redirect('/');
+  if (! activate) return res.redirect('/');
   res.render('barometer.html');
 });
 
 dashboard.get('/', passport.authenticate('basic', { session: false }), function(req, res) {
-  res.render('dashboard.html');
+  res.render('dashboard.html', {
+    activate: activate,
+    counter: counter,
+  });
 });
 
 dashboard.get('/activate', passport.authenticate('basic', { session: false }), function(req, res) {
@@ -62,6 +66,16 @@ var server = app.listen(app.get('port'), function() {
 var io = require('socket.io')(server);
 
 io.on('connection', function(socket) {
+  socket.on('okay', function() {
+    if (counter > 0) counter--;
+    io.sockets.emit('update counter', counter);
+  });
+
+  socket.on('notokay', function() {
+    counter++;
+    io.sockets.emit('update counter', counter);
+  });
+
   socket.on('disconnect', function() {});
 });
 
@@ -75,6 +89,7 @@ server.on('activate', function() {
 server.on('deactivate', function() {
   if (activate) {
     activate = false;
+    counter = 0;
     io.sockets.emit('deactivate');
   }
 });

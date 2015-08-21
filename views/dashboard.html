@@ -10,7 +10,17 @@
 
 {% block content %}
   <div class="actions">
-    <a href="/dashboard/activate" class="btn btn-primary">Activer</a>
-    <a href="/dashboard/deactivate" class="btn btn-link">Désactiver</a>
+    {% if not activate %}
+      <a href="/dashboard/activate" class="btn btn-primary">Activer</a>
+    {% else %}
+      <a href="/dashboard/deactivate" class="btn btn-default">Désactiver</a>
+    {% endif %}
   </div>
+
+  <div class="panel panel-default">
+  <div class="panel-heading">Confus</div>
+  <div class="panel-body">
+    <span id="counter">{{ counter }}</span>
+  </div>
+</div>
 {% endblock %}
