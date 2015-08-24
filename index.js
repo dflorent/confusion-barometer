@@ -92,6 +92,7 @@ io.on('connection', function(socket) {
 
   socket.on('notokay', function() {
     counter++;
+    if (counter === 1) io.sockets.emit('desktop notification');
     io.sockets.emit('update counter', counter);
   });
 });

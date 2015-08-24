@@ -23,7 +23,7 @@
   });
 
   // when user leave the app, decrease the counter
-  $(window).on('unload', function() {
+  $(window).bind('beforeunload', function() {
     socket.emit('okay'); 
   });
 
