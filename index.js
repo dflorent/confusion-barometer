@@ -67,8 +67,7 @@ var io = require('socket.io')(server);
 
 io.on('connection', function(socket) {
   socket.on('okay', function() {
-    if (counter > 0) counter--;
-    io.sockets.emit('update counter', counter);
+    counterdown();
   });
 
   socket.on('notokay', function() {
@@ -76,7 +75,14 @@ io.on('connection', function(socket) {
     io.sockets.emit('update counter', counter);
   });
 
-  socket.on('disconnect', function() {});
+  socket.on('disconnect', function() {
+    counterdown();
+  });
+
+  var counterdown = function() {
+    if (counter > 0) counter--;
+    io.sockets.emit('update counter', counter);
+  };
 });
 
 server.on('activate', function() {
