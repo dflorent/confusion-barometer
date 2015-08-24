@@ -13,4 +13,5 @@
     if ($counter) $counter.html(data);
     $title.html(title);
   });
+
 })(jQuery);
