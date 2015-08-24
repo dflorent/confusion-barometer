@@ -11,79 +11,95 @@ var BasicStrategy = require('passport-http').BasicStrategy;
 var activate = false;
 var counter = 0;
 
+// template engine
 nunjucks.configure('views', {
   autoescape: true,
   express: app
 });
 
+// basic auth
 passport.use(new BasicStrategy(function(u, p, done) {
   return done(null, u === process.env.USERNAME && p === process.env.PASSWORD ? true : false);
 }));
 
+// config
 app.set('port', process.env.PORT || 3000);
 app.use(express.static('public'));
 app.use(passport.initialize());
 app.use('/', router);
 app.use('/dashboard', dashboard);
 
+/**
+ * Routes
+ */
+
+// GET '/'
 router.get('/', function(req, res) {
-  res.render('index.html', {
+  return res.render('index.html', {
     activate: activate,
   });
 });
 
+// GET '/barometer'
 router.get('/barometer', function(req, res) {
   if (! activate) return res.redirect('/');
-  res.render('barometer.html');
+  return res.render('barometer.html');
 });
 
+// GET '/dashboard'
 dashboard.get('/', passport.authenticate('basic', { session: false }), function(req, res) {
-  res.render('dashboard.html', {
+  return res.render('dashboard.html', {
     activate: activate,
     counter: counter,
   });
 });
 
+// GET '/dashboard/activate'
 dashboard.get('/activate', passport.authenticate('basic', { session: false }), function(req, res) {
   server.emit('activate');
-  res.redirect('/dashboard');
+  return res.redirect('/dashboard');
 });
 
+// GET '/dashboard/deactivate'
 dashboard.get('/deactivate', passport.authenticate('basic', { session: false }), function(req, res) {
   server.emit('deactivate');
-  res.redirect('/dashboard');
+  return res.redirect('/dashboard');
 });
 
+// GET '/dashboard/exit'
 dashboard.get('/exit', passport.authenticate('basic', { session: false }), function(req, res) {
   server.emit('deactivate');
-  res.redirect('/');
+  return res.redirect('/');
 });
 
+/**
+ * Server
+ */
 var server = app.listen(app.get('port'), function() {
   console.log('server running http://127.0.0.1:%d', app.get('port'));
 });
+
+/**
+ * Socket.io
+ */
 
 var io = require('socket.io')(server);
 
 io.on('connection', function(socket) {
   socket.on('okay', function() {
-    counterdown();
+    if (counter > 0) counter--;
+    io.sockets.emit('update counter', counter);
   });
 
   socket.on('notokay', function() {
     counter++;
     io.sockets.emit('update counter', counter);
   });
-
-  socket.on('disconnect', function() {
-    counterdown();
-  });
-
-  var counterdown = function() {
-    if (counter > 0) counter--;
-    io.sockets.emit('update counter', counter);
-  };
 });
+
+/**
+ * Events
+ */
 
 server.on('activate', function() {
   if (! activate) {
