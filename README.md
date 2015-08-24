@@ -1,6 +1,8 @@
 Confusion barometer
 ===================
 
+Allows students to show when they are confused about a concept.
+
 Start working
 -------------
 
