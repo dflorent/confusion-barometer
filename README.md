@@ -1,6 +1,8 @@
 Confusion barometer
 ===================
 
+https://confusion-barometer.herokuapp.com
+
 Allows students to show when they are confused about a concept.
 
 Start working
