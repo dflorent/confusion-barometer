@@ -3,7 +3,6 @@ var router = express.Router();
 var dashboard = express.Router();
 var app = express();
 var nunjucks = require('nunjucks');
-var colors = require('colors');
 var events = require('events').EventEmitter;
 var passport = require('passport');
 var BasicStrategy = require('passport-http').BasicStrategy;
